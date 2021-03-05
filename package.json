@@ -1,0 +1,19 @@
+{
+  "name": "video-hoster",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "path": "^0.12.7",
+    "pm2": "^4.5.5"
+  },
+  "scripts": {
+    "start": "pm2 start index.js",
+    "restart": "pm2 restart index",
+    "stop": "pm2 stop index",
+    "dev": "nodemon index.js"
+  }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>linuxnoodle's video hoster</title>
+</head>
+<body style="background-color:black;color:grey;">
+    <label for="episodeNum" style="font-size:2vmin">Episode Select:</label>
+    <input style="font-size:2vmin; background-color:black; color:grey;" id="episodeNum" name="episodeNum" type="number" value="1" placeholder="episode" min="1" max="60"/>
+    <video controls id="videoContainer" src="/videos/1.mp4" style="display: block;width:auto; margin:0 auto; width:75%;">
+        <track id="subtitles" label="English" kind="subtitles" srclang="en" src="/videos/1.vtt" default>
+    </video>
+    <script>
+	var episodeSelect = document.getElementById("episodeNum");
+        var videoPlayer = document.getElementById("videoContainer");
+        var subtitles = document.getElementById("subtitles");
+        episodeSelect.addEventListener("change", () => {
+	        videoPlayer.pause()
+            subtitles.setAttribute("src", "/videos/" + episodeSelect.value + ".vtt");
+            videoPlayer.setAttribute("src", "/videos/" + episodeSelect.value + ".mp4");
+            videoPlayer.play();
+        })
+    </script>
+</body>
+</html>
