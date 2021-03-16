@@ -8,19 +8,19 @@ async function getFiles(dir){
     const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
     const files = await Promise.all(dirents.map((dirent) => {
         const res = resolve(dir, dirent.name);
-        return dirent.isDirectory() ? getFiles(res) : res;
+        return dirent.isDirectory() ? getFiles(res) : res.slice(__dirname.length + 7);
     }));
-    return files.flat();
+    return files;
 }
 
-setInterval(() => {
-    getFiles(__dirname + "/public").then((files) => {
+const reloadFiles = () => {
+    getFiles(__dirname + "/public/videos/").then(files => {
         fs.writeFileSync("./public/filePaths.json", JSON.stringify(files));
-        console.log("Refreshed files.");
-    }
-)}, 10000);
+    });
+}
 
-
+reloadFiles();
+setInterval(reloadFiles, 10000);
 
 const http = require("http").createServer(app);
 const PORT = 8000;

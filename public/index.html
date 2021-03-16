@@ -2,25 +2,64 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" type="image/x-icon" href="favicon.ico"/>
 	<title>linuxnoodle's video hoster</title>
 </head>
 <body style="background-color:black;color:grey;">
-    <label for="episodeNum" style="font-size:2vmin">Episode Select:</label>
-    <input style="font-size:2vmin; background-color:black; color:grey;" id="episodeNum" name="episodeNum" type="number" value="1" placeholder="episode" min="1" max="60"/>
-    <video controls id="videoContainer" src="/videos/1.mp4" style="display: block;width:auto; margin:0 auto; width:75%;">
-        <track id="subtitles" label="English" kind="subtitles" srclang="en" src="/videos/1.vtt" default>
+    <label for="videoSelect" style="font-size:2vmin">Episode Select:</label>
+
+    <select id="videoSelect" style="font-size:2vmin; background-color:black; color:grey;" default=1 placeholder="episode"></select>
+    <video controls id="videoContainer" style="display: block;width:auto; margin:0 auto; width:75%;">
+        <track id="subtitles" label="English" kind="subtitles" srclang="en" default>
     </video>
+    <button onclick="sync()">Resync episodes</button>
+
     <script>
-	var episodeSelect = document.getElementById("episodeNum");
-        var videoPlayer = document.getElementById("videoContainer");
-        var subtitles = document.getElementById("subtitles");
-        episodeSelect.addEventListener("change", () => {
-	        videoPlayer.pause()
-            subtitles.setAttribute("src", "/videos/" + episodeSelect.value + ".vtt");
-            videoPlayer.setAttribute("src", "/videos/" + episodeSelect.value + ".mp4");
+        let subtitleFiles = [], videoFiles = [];
+
+        let episodeSelect = document.getElementById("videoSelect");
+        let videoPlayer = document.getElementById("videoContainer");
+        let subtitles = document.getElementById("subtitles");
+
+	    episodeSelect.addEventListener("change", () => {
+            videoPlayer.pause();
+            videoPlayer.src = episodeSelect.value;
+            subtitles.src = episodeSelect.value.substring(0, episodeSelect.value.lastIndexOf(".")) + ".vtt";
             videoPlayer.play();
-        })
+        });
+        
+        function sync(){
+            videoFiles = [];
+            subtitleFiles = [];
+            fetch("filePaths.json").then(response => response.json()).then(json => {
+                let mediaFileExtensions = ["avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "mpeg4", "ogv", "webm", "wmv"];
+                // only works for vtt files rn, too lazy to add support for other files
+                // just manually change it yourself if you are using a different format
+                // remember to give it the same name as the video file
+                let subtitleFileExtensions = ["vtt"];
+
+                // definitely could be faster, work on when not sleepy
+                for (let i = 0; i < json.length; ++i){
+                    if (mediaFileExtensions.indexOf(json[i].substring(json[i].lastIndexOf(".") + 1, json[i].length) || json[i]) > -1){
+                        let element = document.createElement("option");
+                        element.value = json[i];
+                        element.textContent = json[i].slice(8);
+                        episodeSelect.appendChild(element);
+                        videoFiles.push(json[i]);
+                    } else if (subtitleFileExtensions.indexOf(json[i].substring(json[i].lastIndexOf(".") + 1, json[i].length) || json[i]) > -1){
+                        subtitleFiles.push(json[i]);
+                    }
+                }
+                videoPlayer.pause();
+                videoPlayer.src = videoFiles[0];
+                subtitles.src = videoFiles[0].substring(0, videoFiles[0].lastIndexOf(".")) + ".vtt";
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            sync();
+        });
     </script>
 </body>
 </html>
